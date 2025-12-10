@@ -11,12 +11,13 @@ RUN apk add --no-cache \
     musl-dev\
     ca-certificates\
     openssl\
+    openssh-client\
     tar\
     wget\
     nano
 
 # Устанавливаем рабочий каталог
-WORKDIR /home/root/work
+WORKDIR $WORKDIR
 
 EXPOSE 8888
 
