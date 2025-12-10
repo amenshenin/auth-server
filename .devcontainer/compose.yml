@@ -1,0 +1,69 @@
+services:
+  db:
+    image: ${DB_IMAGE}:${DB_IMAGE_TAG}
+    restart: unless-stopped
+    container_name: ${COMPOSE_PROJECT_NAME}-db
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS:-root}
+      POSTGRES_USER: ${DB_USER:-root}
+    volumes:
+      - /data/db:/var/lib/postgresql/data
+    networks:
+    - go
+  adminer:
+    image: ${ADMINER_IMAGE}:${ADMINER_IMAGE_TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}-adminer
+    restart: always
+    ports:
+      - ${ADMINER_PORT}:8080
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: ${COMPOSE_PROJECT_NAME}-db
+    networks:
+    - go
+  app:
+    build:
+      context: ./docker/image
+      dockerfile: Dockerfile
+      args:
+        UID: '${UID}'
+        GID: '${GID}'
+    container_name: ${COMPOSE_PROJECT_NAME}-app
+    restart: unless-stopped
+    networks:
+      - go
+    environment:
+      UID: '${UID}'
+      GID: '${GID}'
+    secrets:
+      - host_ssh_key
+      - host_ssh_config
+      - config
+    volumes:
+      - ../:/home/root/work
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=gateway"
+
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-http.entrypoints=http,https"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-http.rule=Host(`${VHOST}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-http.rule=HostRegexp(`({subdomain:[a-z0-9.]+}.)?${VHOST}`)"
+
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.tls=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.entrypoints=http,https"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.rule=Host(`${VHOST}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.rule=HostRegexp(`({subdomain:[a-z0-9.]+}.)?${VHOST}`)"
+
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-lb.loadbalancer.server.port=80"
+networks:
+  go:
+    name: ${COMPOSE_PROJECT_NAME}-net
+secrets:
+  host_ssh_key:
+    file: ${SSH_FILE}
+  host_ssh_config:
+    file: ${SSH_CONFIG_FILE}
+  config:
+    file: ${CUREENT_CONFIG_PATH}
