@@ -1,7 +1,5 @@
-# Используем официальный образ Go
 FROM golang:1.24-alpine AS local
 
-# Устанавливаем дополнительные инструменты для разработки
 RUN apk add --no-cache \
     git \
     make \
@@ -16,9 +14,10 @@ RUN apk add --no-cache \
     wget\
     nano
 
-# Устанавливаем рабочий каталог
+RUN echo "127.0.0.1 $VHOST" >> /etc/hosts
+
 WORKDIR $WORKDIR
 
-EXPOSE 8888
+EXPOSE $VHOST_PORT
 
 CMD tail -f /dev/null

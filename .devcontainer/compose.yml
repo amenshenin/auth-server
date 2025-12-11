@@ -26,10 +26,13 @@ services:
   app:
     build:
       context: ./docker/image
-      dockerfile: Dockerfile
+      dockerfile: "${ENVIRONMENT}Dockerfile"
       args:
         UID: '${UID}'
         GID: '${GID}'
+        WORKDIR: '/home/root/work'
+        VHOST: '${VHOST}'
+        VHOST_PORT: '${VHOST_PORT}'
     container_name: ${COMPOSE_PROJECT_NAME}-app
     restart: unless-stopped
     networks:
@@ -43,20 +46,6 @@ services:
       - config
     volumes:
       - ../:/home/root/work
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=gateway"
-
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-http.entrypoints=http,https"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-http.rule=Host(`${VHOST}`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-http.rule=HostRegexp(`({subdomain:[a-z0-9.]+}.)?${VHOST}`)"
-
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.tls=true"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.entrypoints=http,https"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.rule=Host(`${VHOST}`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-lb-https.rule=HostRegexp(`({subdomain:[a-z0-9.]+}.)?${VHOST}`)"
-
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-lb.loadbalancer.server.port=80"
 networks:
   go:
     name: ${COMPOSE_PROJECT_NAME}-net
