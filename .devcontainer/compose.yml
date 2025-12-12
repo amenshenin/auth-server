@@ -33,6 +33,7 @@ services:
         WORKDIR: '/home/root/work'
         VHOST: '${VHOST}'
         VHOST_PORT: '${VHOST_PORT}'
+        COMPOSE_PROJECT_NAME: '${COMPOSE_PROJECT_NAME}'
     container_name: ${COMPOSE_PROJECT_NAME}-app
     restart: unless-stopped
     networks:
