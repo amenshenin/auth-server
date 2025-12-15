@@ -4,29 +4,20 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"time"
-)
 
-// Config contains server parameters
-type Config struct {
-	Addr            string
-	ReadTimeout     time.Duration
-	WriteTimeout    time.Duration
-	IdleTimeout     time.Duration
-	ShutdownTimeout time.Duration
-	Handler         http.Handler
-}
+	"github.com/amenshenin/auth-server.git/internal/config"
+)
 
 // Server wraps over http.Server
 type Server struct {
-	cfg *Config
+	cfg *config.HTTPServer
 	srv *http.Server
 }
 
 // New creates a configuration-based Server
-func New(cfg *Config, handler http.Handler) *Server {
+func New(cfg *config.HTTPServer, handler http.Handler) *Server {
 	if cfg == nil {
-		cfg = &Config{}
+		cfg = &config.HTTPServer{}
 	}
 
 	if handler == nil {
@@ -34,17 +25,23 @@ func New(cfg *Config, handler http.Handler) *Server {
 	}
 
 	httpSrv := &http.Server{
-		Addr:         cfg.Addr,
-		Handler:      handler,
-		ReadTimeout:  cfg.ReadTimeout,
-		WriteTimeout: cfg.WriteTimeout,
-		IdleTimeout:  cfg.IdleTimeout,
+		Addr:           cfg.Address + ":" + cfg.Port,
+		Handler:        handler,
+		MaxHeaderBytes: 1 << 20,
+		ReadTimeout:    cfg.ReadTimeout,
+		WriteTimeout:   cfg.WriteTimeout,
+		IdleTimeout:    cfg.IdleTimeout,
 	}
 
 	return &Server{
 		cfg: cfg,
 		srv: httpSrv,
 	}
+}
+
+// Shutdown gracefully stops the server
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.srv.Shutdown(ctx)
 }
 
 // Serve starts the server and blocks until it is finished

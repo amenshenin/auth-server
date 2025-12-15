@@ -33,6 +33,7 @@ type App struct {
 }
 
 type DB struct {
+	Provider string `env:"DB_PROVIDER" env-default:"postgres"`
 	Host     string `env:"DB_HOST" env-required:"true"`
 	Port     int    `env:"DB_PORT" env-default:"5432"`
 	Username string `env:"DB_USER" env-required:"true"`
@@ -44,8 +45,10 @@ type DB struct {
 }
 
 type DBPool struct {
-	MaxOpenConns int `env:"DB_MAX_OPEN_CONNS" env-default:"10"`
-	MaxIdleConns int `env:"DB_MAX_IDLE_CONNS" env-default:"5"`
+	MaxOpenConns    int           `env:"DB_MAX_OPEN_CONNS" env-default:"10"`
+	MaxIdleConns    int           `env:"DB_MAX_IDLE_CONNS" env-default:"5"`
+	ConnMaxLifetime time.Duration `env:"DB_CONN_MAX_LIFETIME" env-default:"30m"`
+	MaxRequestTime  time.Duration `env:"DB_MAX_REQUEST_TIME" env-default:"5s"`
 }
 
 type DBRetry struct {
@@ -55,10 +58,12 @@ type DBRetry struct {
 }
 
 type HTTPServer struct {
-	Address     string        `env:"VHOST" env-required:"true"`
-	Port        string        `env:"VHOST_PORT" env-required:"true"`
-	Timeout     time.Duration `env:"SERV_TIMEOUT" env-default:"4s"`
-	IdleTimeout time.Duration `env:"SERV_IDDLE_TIMEOUT" env-default:"60s"`
+	Address         string        `env:"VHOST" env-required:"true"`
+	Port            string        `env:"VHOST_PORT" env-required:"true"`
+	ReadTimeout     time.Duration `env:"SERV_READ_TIMEOUT" env-default:"4s"`
+	WriteTimeout    time.Duration `env:"SERV_WRITE_TIMEOUT" env-default:"4s"`
+	ShutdownTimeout time.Duration `env:"SERV_SHUTDOWN_TIMEOUT" env-default:"4s"`
+	IdleTimeout     time.Duration `env:"SERV_IDLE_TIMEOUT" env-default:"60s"`
 }
 
 func LoadConfig(path string) (*Config, error) {
