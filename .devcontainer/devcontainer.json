@@ -1,0 +1,23 @@
+{
+    "name": "${localWorkspaceFolderBasename}",
+    "dockerComposeFile": "compose.yml",
+    "service": "app",
+    "workspaceFolder": "/home/root/work",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.go"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.cwd": "/home/root/work",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash",
+                        "icon": "terminal-bash"
+                    }
+                }
+            }
+        }
+    }
+}

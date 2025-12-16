@@ -1,0 +1,42 @@
+FROM golang:1.24-alpine AS local
+
+# Set build arguments and environment variables
+ARG UID=1000
+ARG GID=1000
+ARG WORKDIR=/home/root/work
+ARG VHOST=localhost
+ARG VHOST_PORT=8085
+
+# Install necessary packages
+RUN apk add --no-cache \
+    git \
+    make \
+    curl \
+    bash \
+    gcc \
+    musl-dev\
+    ca-certificates\
+    openssl\
+    openssh-client\
+    tar\
+    wget\
+    nano
+
+# Create a non-root user with specified UID and GID
+# RUN addgroup -g ${GID} appuser && \
+#     adduser -u ${UID} -G appuser -D appuser
+
+# Set the working directory
+WORKDIR $WORKDIR
+
+# # Set ownership of the working directory
+# RUN chown -R ${UID}:${GID} ${WORKDIR}
+
+# # Switch to the non-root user
+# USER appuser
+
+# Expose the specified VHOST_PORT
+EXPOSE $VHOST_PORT
+
+# Keep the container running
+CMD ["tail", "-f", "/dev/null"]

@@ -1,0 +1,60 @@
+services:
+  db:
+    image: ${ES_DB_IMAGE}:${ES_DB_IMAGE_TAG}
+    restart: unless-stopped
+    container_name: ${ES_COMPOSE_PROJECT_NAME}-db
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS:-root}
+      POSTGRES_USER: ${DB_USER:-root}
+    volumes:
+      - /data/db:/var/lib/postgresql/data
+    networks:
+    - go
+  adminer:
+    image: ${ES_ADMINER_IMAGE}:${ES_ADMINER_IMAGE_TAG}
+    container_name: ${ES_COMPOSE_PROJECT_NAME}-adminer
+    restart: always
+    hostname: ${ES_ADMINER_HOST}
+    ports:
+      - ${ES_ADMINER_PORT}:8080
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: ${ES_COMPOSE_PROJECT_NAME}-db
+    networks:
+    - go
+  app:
+    build:
+      context: ./docker/image
+      dockerfile: "${ES_ENVIRONMENT}Dockerfile"
+      args:
+        UID: '${ES_UID}'
+        GID: '${ES_GID}'
+        WORKDIR: '${ES_WORKDIR}'
+        VHOST: '${ES_SERV_HOST}'
+        VHOST_PORT: '${ES_SERV_PORT}'
+        COMPOSE_PROJECT_NAME: '${ES_COMPOSE_PROJECT_NAME}'
+    container_name: ${ES_COMPOSE_PROJECT_NAME}-app
+    restart: unless-stopped
+    networks:
+      - go
+    secrets:
+      - host_ssh_key
+      - host_ssh_config
+      - config
+    volumes:
+      - ../:${ES_WORKDIR:-/home/root/work}
+    ports:
+      - "${ES_SERV_PORT}:${SERV_PORT}"
+    hostname: "${ES_SERV_HOST}"
+networks:
+  go:
+    name: ${ES_COMPOSE_PROJECT_NAME}-net
+secrets:
+  host_ssh_key:
+    file: ${ES_SSH_FILE}
+  host_ssh_config:
+    file: ${ES_SSH_CONFIG_FILE}
+  config:
+    file: ${ES_CURRENT_CONFIG_PATH}
