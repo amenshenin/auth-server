@@ -11,21 +11,28 @@ import (
 )
 
 type DBProvider interface {
-	GetConnection(ctx context.Context, cfg *config.DB, logger *slog.Logger) (*sqlx.DB, error)
+	GetConnection(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*sqlx.DB, error)
 }
+
+const (
+	PostgresProvider = "postgres"
+)
 
 var providers = map[string]DBProvider{
-	"postgres": &postgres.PostgresProvider{},
+	PostgresProvider: &postgres.PostgresProvider{},
 }
 
-func GetConnection(ctx context.Context, cfg *config.DB, logger *slog.Logger) (*sqlx.DB, error) {
+func GetConnection(ctx context.Context, cfg *config.Config, providertype string, logger *slog.Logger) (*sqlx.DB, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("db config is nil")
 	}
-	logger.Debug("Selected provider", "provider", cfg.Provider)
-	provider, ok := providers[cfg.Provider]
+	if providertype == "" {
+		return nil, fmt.Errorf("provider is not specified")
+	}
+	logger.Debug("Selected provider", "provider", providertype)
+	provider, ok := providers[providertype]
 	if !ok {
-		return nil, fmt.Errorf("unsupported provider: %s", cfg.Provider)
+		return nil, fmt.Errorf("unsupported provider: %s", providertype)
 	}
 	return provider.GetConnection(ctx, cfg, logger)
 }

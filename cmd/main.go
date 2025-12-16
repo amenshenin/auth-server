@@ -34,7 +34,7 @@ func main() {
 	logger.Info("Start service: init logger complete")
 
 	//Inits DB
-	db, err := storage.GetConnection(ctx, &config.DB, logger)
+	db, err := storage.GetConnection(ctx, config, storage.PostgresProvider, logger)
 	if err != nil {
 		logger.Error("Error database connection", "error", err.Error())
 		os.Exit(1)

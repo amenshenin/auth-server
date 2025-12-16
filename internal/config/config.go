@@ -19,21 +19,18 @@ const (
 )
 
 type Config struct {
-	Enviremant string `env:"ENVIRONMENT" env-default:"local"`
+	Enviremant string `env:"ES_ENVIRONMENT" env-default:"local"`
 	App        App
 	DB         DB
 	HTTPServer HTTPServer
 }
 
 type App struct {
-	AppLogin   string        `env:"APP_USERNAME" env-default:"root"`
-	AppPassord string        `env:"APP_PASSWORD" env-default:"root"`
 	TockenTTL  time.Duration `env:"APP_TOCKEN_TTL" env-default:"1h"`
 	SigningKey string        `env:"-"`
 }
 
 type DB struct {
-	Provider string `env:"DB_PROVIDER" env-default:"postgres"`
 	Host     string `env:"DB_HOST" env-required:"true"`
 	Port     int    `env:"DB_PORT" env-default:"5432"`
 	Username string `env:"DB_USER" env-required:"true"`
@@ -58,8 +55,8 @@ type DBRetry struct {
 }
 
 type HTTPServer struct {
-	Address         string        `env:"VHOST" env-required:"true"`
-	Port            string        `env:"VHOST_PORT" env-required:"true"`
+	Address         string        `env:"SERV_HOST" env-required:"true"`
+	Port            string        `env:"SERV_PORT" env-required:"true"`
 	ReadTimeout     time.Duration `env:"SERV_READ_TIMEOUT" env-default:"4s"`
 	WriteTimeout    time.Duration `env:"SERV_WRITE_TIMEOUT" env-default:"4s"`
 	ShutdownTimeout time.Duration `env:"SERV_SHUTDOWN_TIMEOUT" env-default:"4s"`

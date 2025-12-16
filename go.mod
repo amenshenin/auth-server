@@ -5,6 +5,7 @@ go 1.24.11
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/avast/retry-go v3.0.0+incompatible // indirect
+	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
